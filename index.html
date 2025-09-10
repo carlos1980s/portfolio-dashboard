@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Portfolio Valuation Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            color: #333;
+        }
+
+        .tab.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 10px;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            padding: 5px 10px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .status-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .status-box div {
+            margin-bottom: 5px;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .tips {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .tips ul {
+            margin-left: 20px;
+        }
+
+        .tips li {
+            margin-bottom: 5px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #007bff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Live Portfolio Valuation Dashboard</h1>
+                <div class="controls">
+                    <label class="switch">
+                        <input type="checkbox" id="autoRefresh" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <span>Auto-refresh</span>
+                    <label>Every</label>
+                    <input type="number" id="intervalSec" value="60" min="10" style="width: 60px;">
+                    <span>sec</span>
+                    <button id="refreshBtn" onclick="refreshQuotes()">
+                        <span id="refreshIcon">↻</span> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('portfolio')">Portfolio</button>
+                <button class="tab" onclick="switchTab('settings')">⚙ Settings</button>
+            </div>
+
+            <div id="portfolio-tab" class="tab-content active">
+                <table id="portfolioTable">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Name</th>
+                            <th>Shares</th>
+                            <th>Price</th>
+                            <th>Value</th>
+                            <th>% Portfolio</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+
+                <div class="actions">
+                    <div class="total" id="totalValue">Total Value: $0.00</div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="addRow()" class="btn-success">+ Add</button>
+                        <button onclick="exportCSV()" class="btn-secondary">↓ Export CSV</button>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="csvFile" accept=".csv" onchange="importCSV(event)">
+                            <label for="csvFile" class="file-input-label">↑ Import CSV</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-tab" class="tab-content">
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label>Yahoo Finance Proxy URL</label>
+                        <input type="text" id="proxyUrl" placeholder="https://your-yahoo-proxy.example.workers.dev">
+                        <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                            The app calls proxy/?symbols=SYM1,SYM2 and expects Yahoo's quoteResponse JSON.
+                            Use a Cloudflare Worker or any serverless function to forward requests to Yahoo.
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <div class="status-box">
+                            <div>Symbols: <span id="symbolsList">(none)</span></div>
+                            <div>Last error: <span id="lastError" class="success">None</span></div>
+                            <div>Last update: <span id="lastUpdate">Never</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card tips">
+            <h3 style="margin-bottom: 10px;">Tips</h3>
+            <ul>
+                <li>Paste your tickers as they appear in your broker (e.g., NEB5CSA.ID, FTTASH1.LX).</li>
+                <li>If a quote doesn't load, enter a manual price (overrides API) until the provider is configured.</li>
+                <li>Use CSV export/import to keep backups or move between browsers.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Default holdings
+        const DEFAULT_HOLDINGS = [
+            { symbol: "NEB5CSA.ID", name: "Neuberger Berman Next Gen Connectivity", shares: 2058.1 },
+            { symbol: "FTTASH1.LX", name: "Franklin Technology Fund", shares: 7312 },
+            { symbol: "BGWA2SH.LX", name: "BlackRock World Financials", shares: 4045 },
+            { symbol: "FFGTAAS.LX", name: "Fidelity Global Technology", shares: 18484 }
+        ];
+
+        // State
+        let holdings = JSON.parse(localStorage.getItem('holdings')) || DEFAULT_HOLDINGS;
+        let quotes = {};
+        let autoRefreshInterval = null;
+        let proxyBase = localStorage.getItem('proxyBase') || 'https://your-yahoo-proxy.example.workers.dev';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('proxyUrl').value = proxyBase;
+            renderTable();
+            refreshQuotes();
+            setupAutoRefresh();
+
+            // Event listeners
+            document.getElementById('autoRefresh').addEventListener('change', setupAutoRefresh);
+            document.getElementById('intervalSec').addEventListener('change', setupAutoRefresh);
+            document.getElementById('proxyUrl').addEventListener('change', function(e) {
+                proxyBase = e.target.value;
+                localStorage.setItem('proxyBase', proxyBase);
+            });
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'portfolio') {
+                document.querySelector('.tab:first-child').classList.add('active');
+                document.getElementById('portfolio-tab').classList.add('active');
+            } else {
+                document.querySelector('.tab:last-child').classList.add('active');
+                document.getElementById('settings-tab').classList.add('active');
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            let totalValue = 0;
+            
+            holdings.forEach((holding, index) => {
+                const quote = quotes[holding.symbol] || {};
+                const price = holding.manualPrice || quote.price || 0;
+                const value = price * holding.shares;
+                totalValue += value;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="text" value="${holding.symbol}" onchange="updateHolding(${index}, 'symbol', this.value)"></td>
+                    <td><input type="text" value="${holding.name}" onchange="updateHolding(${index}, 'name', this.value)"></td>
+                    <td><input type="number" value="${holding.shares}" onchange="updateHolding(${index}, 'shares', parseFloat(this.value))"></td>
+                    <td>
+                        <input type="number" placeholder="${price ? price.toFixed(2) : '(API)'}" 
+                               value="${holding.manualPrice || ''}" 
+                               onchange="updateHolding(${index}, 'manualPrice', this.value ? parseFloat(this.value) : null)">
+                        ${quote.currency ? `<span style="font-size: 12px; color: #666;">${quote.currency}</span>` : ''}
+                    </td>
+                    <td>${value ? '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</td>
+                    <td>${totalValue ? ((value / totalValue * 100).toFixed(2) + '%') : '0%'}</td>
+                    <td><button class="btn-danger" onclick="removeRow(${index})">×</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('totalValue').textContent = 'Total Value: $' + 
+                totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            
+            // Update symbols list in settings
+            const symbols = holdings.map(h => h.symbol).filter(Boolean);
+            document.getElementById('symbolsList').textContent = symbols.length ? symbols.join(', ') : '(none)';
+            
+            saveHoldings();
+        }
+
+        function updateHolding(index, field, value) {
+            holdings[index][field] = value;
+            renderTable();
+        }
+
+        function addRow() {
+            holdings.push({ symbol: '', name: '', shares: 0 });
+            renderTable();
+        }
+
+        function removeRow(index) {
+            holdings.splice(index, 1);
+            renderTable();
+        }
+
+        function saveHoldings() {
+            localStorage.setItem('holdings', JSON.stringify(holdings));
+        }
+
+        async function refreshQuotes() {
+            const btn = document.getElementById('refreshBtn');
+            const icon = document.getElementById('refreshIcon');
+            btn.disabled = true;
+            icon.style.animation = 'spin 1s linear infinite';
+            
+            try {
+                const symbols = holdings.map(h => h.symbol).filter(Boolean);
+                if (symbols.length === 0) {
+                    document.getElementById('lastError').textContent = 'No symbols to fetch';
+                    document.getElementById('lastError').className = 'error';
+                    return;
+                }
+                
+                const url = `${proxyBase.replace(/\/$/, '')}/?symbols=${encodeURIComponent(symbols.join(','))}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const results = data?.quoteResponse?.result || [];
+                
+                quotes = {};
+                results.forEach(result => {
+                    quotes[result.symbol] = {
+                        price: result.regularMarketPrice,
+                        currency: result.currency,
+                        timestamp: result.regularMarketTime ? result.regularMarketTime * 1000 : Date.now()
+                    };
+                });
+                
+                document.getElementById('lastError').textContent = 'None';
+                document.getElementById('lastError').className = 'success';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+                
+                renderTable();
+            } catch (error) {
+                document.getElementById('lastError').textContent = error.message;
+                document.getElementById('lastError').className = 'error';
+            } finally {
+                btn.disabled = false;
+                icon.style.animation = '';
+            }
+        }
+
+        function setupAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            const enabled = document.getElementById('autoRefresh').checked;
+            const interval = parseInt(document.getElementById('intervalSec').value) || 60;
+            
+            if (enabled) {
+                autoRefreshInterval = setInterval(refreshQuotes, Math.max(10, interval) * 1000);
+            }
+        }
+
+        function exportCSV() {
+            const rows = [['symbol', 'name', 'shares', 'manualPrice']];
+            holdings.forEach(h => {
+                rows.push([h.symbol, h.name, h.shares, h.manualPrice || '']);
+            });
+            
+            const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `portfolio-${new Date().toISOString().slice(0, 19)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.trim().split(/\r?\n/);
+                const headers = lines[0].split(',').map(h => h.replace(/^"|"$/g, ''));
+                
+                const newHoldings = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const cells = lines[i].split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)
+                        .map(c => c.replace(/^"|"$/g, ''));
+                    
+                    const holding = {};
+                    headers.forEach((header, idx) => {
+                        if (header === 'shares' || header === 'manualPrice') {
+                            holding[header] = cells[idx] ? parseFloat(cells[idx]) : (header === 'shares' ? 0 : null);
+                        } else {
+                            holding[header] = cells[idx] || '';
+                        }
+                    });
+                    newHoldings.push(holding);
+                }
+                
+                holdings = newHoldings;
+                renderTable();
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
